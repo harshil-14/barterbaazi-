@@ -165,84 +165,84 @@ exports.deleteProfile = async (req, res) => {
 };
 
 
-// Send connection request
-exports.sendConnectionRequest = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { targetUserId } = req.body;
+// // Send connection request
+// exports.sendConnectionRequest = async (req, res) => {
+//     try {
+//         const userId = req.user.id;
+//         const { targetUserId } = req.body;
 
-        const targetUser = await User.findById(targetUserId);
-        if (!targetUser) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
+//         const targetUser = await User.findById(targetUserId);
+//         if (!targetUser) {
+//             return res.status(404).json({ msg: 'User not found' });
+//         }
 
-        // Check if the connection request is already sent or the users are already connected
-        if (targetUser.receivedRequests.includes(userId) || targetUser.connections.includes(userId)) {
-            return res.status(400).json({ msg: 'Connection request already sent or users already connected' });
-        }
+//         // Check if the connection request is already sent or the users are already connected
+//         if (targetUser.receivedRequests.includes(userId) || targetUser.connections.includes(userId)) {
+//             return res.status(400).json({ msg: 'Connection request already sent or users already connected' });
+//         }
 
-        // Add the request to both users
-        targetUser.receivedRequests.push(userId);
-        const user = await User.findById(userId);
-        user.sentRequests.push(targetUserId);
+//         // Add the request to both users
+//         targetUser.receivedRequests.push(userId);
+//         const user = await User.findById(userId);
+//         user.sentRequests.push(targetUserId);
 
-        await targetUser.save();
-        await user.save();
+//         await targetUser.save();
+//         await user.save();
 
-        res.json({ msg: 'Connection request sent' });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-};
+//         res.json({ msg: 'Connection request sent' });
+//     } catch (err) {
+//         console.error(err.message);
+//         res.status(500).send('Server error');
+//     }
+// };
 
-// Accept connection request
-exports.acceptConnectionRequest = async (req, res) => {
-    try {
-        const userId = req.user.id;
-        const { requesterId } = req.body;
+// // Accept connection request
+// exports.acceptConnectionRequest = async (req, res) => {
+//     try {
+//         const userId = req.user.id;
+//         const { requesterId } = req.body;
 
-        const requester = await User.findById(requesterId);
-        const user = await User.findById(userId);
+//         const requester = await User.findById(requesterId);
+//         const user = await User.findById(userId);
 
-        if (!requester || !user) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
+//         if (!requester || !user) {
+//             return res.status(404).json({ msg: 'User not found' });
+//         }
 
-        // Check if there's a pending request
-        if (!user.receivedRequests.includes(requesterId)) {
-            return res.status(400).json({ msg: 'No connection request from this user' });
-        }
+//         // Check if there's a pending request
+//         if (!user.receivedRequests.includes(requesterId)) {
+//             return res.status(400).json({ msg: 'No connection request from this user' });
+//         }
 
-        // Add each other to connections
-        user.connections.push(requesterId);
-        requester.connections.push(userId);
+//         // Add each other to connections
+//         user.connections.push(requesterId);
+//         requester.connections.push(userId);
 
-        // Remove the request from both users' requests arrays
-        user.receivedRequests = user.receivedRequests.filter(id => id.toString() !== requesterId);
-        requester.sentRequests = requester.sentRequests.filter(id => id.toString() !== userId);
+//         // Remove the request from both users' requests arrays
+//         user.receivedRequests = user.receivedRequests.filter(id => id.toString() !== requesterId);
+//         requester.sentRequests = requester.sentRequests.filter(id => id.toString() !== userId);
 
-        await user.save();
-        await requester.save();
+//         await user.save();
+//         await requester.save();
 
-        res.json({ msg: 'Connection request accepted' });
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-};
+//         res.json({ msg: 'Connection request accepted' });
+//     } catch (err) {
+//         console.error(err.message);
+//         res.status(500).send('Server error');
+//     }
+// };
 
-// Get all connections for a user
-exports.getConnections = async (req, res) => {
-    try {
-        const user = await User.findById(req.user.id).populate('connections', 'firstName lastName profilePicture');
-        if (!user) {
-            return res.status(404).json({ msg: 'User not found' });
-        }
+// // Get all connections for a user
+// exports.getConnections = async (req, res) => {
+//     try {
+//         const user = await User.findById(req.user.id).populate('connections', 'firstName lastName profilePicture');
+//         if (!user) {
+//             return res.status(404).json({ msg: 'User not found' });
+//         }
 
-        res.json(user.connections);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).send('Server error');
-    }
-};
+//         res.json(user.connections);
+//     } catch (err) {
+//         console.error(err.message);
+//         res.status(500).send('Server error');
+//     }
+// };

@@ -111,8 +111,8 @@ exports.acceptConnectionRequest = async (req, res) => {
         await User.findByIdAndUpdate(connection.recipient, { $push: { connections: connection.requester } });
 
         // Optionally, remove the request from sentRequests/receivedRequests since it's now accepted
-        await User.findByIdAndUpdate(connection.requester, { $pull: { sentRequests: connection.recipient } });
-        await User.findByIdAndUpdate(connection.recipient, { $pull: { receivedRequests: connection.requester } });
+        await User.findByIdAndUpdate(connection.requester, { $pull: { sentConnectionRequests: connection.recipient } });
+        await User.findByIdAndUpdate(connection.recipient, { $pull: { receivedConnectionRequests: connection.requester } });
 
         res.status(200).json({ msg: 'Connection accepted', connection });
     } catch (error) {
@@ -145,8 +145,8 @@ exports.rejectConnectionRequest = async (req, res) => {
         await connection.save();
 
         // Optionally, remove the request from sentRequests/receivedRequests since it's now rejected
-        await User.findByIdAndUpdate(connection.requester, { $pull: { sentRequests: connection.recipient } });
-        await User.findByIdAndUpdate(connection.recipient, { $pull: { receivedRequests: connection.requester } });
+        await User.findByIdAndUpdate(connection.requester, { $pull: { sentConnectionRequests: connection.recipient } });
+        await User.findByIdAndUpdate(connection.recipient, { $pull: { receivedConnectionRequests: connection.requester } });
 
         res.status(200).json({ msg: 'Connection rejected', connection });
     } catch (error) {
@@ -170,11 +170,11 @@ exports.deleteConnectionRequest = async (req, res) => {
 
         // Remove the connection request from the sender's sentRequests and recipient's receivedRequests
         await User.findByIdAndUpdate(connection.requester, {
-            $pull: { sentRequests: connection.recipient }
+            $pull: { sentConnectionRequests: connection.recipient }
         });
 
         await User.findByIdAndUpdate(connection.recipient, {
-            $pull: { receivedRequests: connection.requester }
+            $pull: { receivedConnectionRequests: connection.requester }
         });
 
         // Delete the connection request from the Connection collection
